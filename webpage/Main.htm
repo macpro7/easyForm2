@@ -1,0 +1,50 @@
+{% include './templates/header.htm' %}
+
+
+<div class="container">
+
+  <form id="language_form" name="language_form" action="/work/" method="POST">
+    <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+    <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+    <input type="hidden" id="NextId" name="NextId" value="" />
+
+    <span>&nbsp;</span>
+
+    {% for k,v in p._dict.items() %}
+    {% if v[1] == ""%}
+      
+    {%else%}
+    <span><button type="submit" onclick="sw('{{k}}')" class="btn {{v[2]}} btn-lg btn-block"> {{p.T[v[1]]}} </button></span>
+    <span>&nbsp;</span>
+    {% endif %}
+
+    {% endfor %}
+
+    <!-- <span><button type="submit" onclick="sw(20)" class="btn btn-info btn-lg btn-block"> {{p.T['b_usermanagement']}} </button></span>
+  
+    <span>&nbsp;</span>
+
+    <span><button type="submit" onclick="sw('caseTable')" class="btn btn-warning btn-lg btn-block">{{ p.T["b_casemgr"] }}</button></span>
+    <span>&nbsp;</span> -->
+      <!-- { %if U.status.find('admin')>-1% } -->
+<!-- 
+    { %if U.status=='admin,approver'% } -->
+    <!-- <span><button type="submit" onclick="sw(40)" class="btn btn-primary btn-lg btn-block">{{26 }}</button></span>
+    <span>&nbsp;</span> -->
+    <!-- { % endif % }
+
+    { % endif % } -->
+
+
+  </form>
+
+</div>
+<script>
+  function sw(pa) {
+    document.getElementById("NextId").value = pa;
+
+  }
+
+
+</script>
+{% include './templates/footer.htm' %}

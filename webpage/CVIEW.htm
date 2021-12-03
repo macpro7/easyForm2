@@ -1,0 +1,149 @@
+{% include './templates/header.htm' %}
+
+
+<div id="container" style="min-width: 98%; margin: 10px 10px">
+  <!-- { % include './templates/toCreateNewButton.htm' % } -->
+  <br />
+  {%if p.msg!="" %}
+  <div class="alert alert-warning" role="alert">
+    {{p.T[p.msg]}}
+  </div>
+  {%endif%}
+
+
+  <div class="card " style="width: 100%;">
+    <form style="display: inline;" id="form_A57estEX" name="form_A57estEX" action="/{{  p.conf['nxtPage'][0]  }}"
+      method="POST">
+
+      <h5 class="card-header alert-secondary ">{{ p.T[p.conf["title"]] }}:</h5>
+      <div class="card-body">
+
+        <div class="alert alert-light" role="alert">
+          {{ p.T['l_progress'] }} : {{p.doing}} / {{p.total}}
+        </div>
+
+        <ul class="list-group list-group-flush">
+          <div class="progress" style="margin: 15px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100"
+              aria-valuemin="0" aria-valuemax="100" style="width: {{p.percent}}% ; "></div> 
+              <!-- { {p.percent}}% -->
+          </div>
+        </ul>
+      </div>
+
+      {%for ipd in p.data%}
+         {%if ipd['pageStyle'] == "HIDDEN"%}
+         <input type="hidden" id="{{ipd['name']}}" name="{{ipd['name']}}" value="{{ipd['value']}}" />
+
+
+         {%endif%}
+
+      {%endfor%}
+
+
+      <div class="card " style="max-width: 100%; margin: 25px;">
+        <div class="card-header">{{p.T['l_question']}} : </div>
+        <div class="card-body text-dark">
+          <h5 class="card-title">{{p.currentQuest}}</h5>
+          <!-- <p class="card-text">{ {item[5]} }</p> -->
+
+          <p class="card-text" style="  margin: 25px;">{{p.T['l_answer']}} :</p>
+
+
+
+
+          <p class="card-text" style="  margin: 25px;">
+
+            {% if p.currentQuestAnswerType == "TEXT"%}
+
+
+            <input type="input" class="input-sm form-control" name="answerCont" id="answerCont" value=""  />
+
+
+            {% elif p.currentQuestAnswerType == "CHOICE"%}
+
+            <select class="custom-select mr-sm-2" name="answerCont" id="answerCont" >
+                {%for k in p.option%}
+                <option value="{{k}}"> {{p.option[k]}} </option>
+                {%endfor%}
+            </select>
+
+            {% elif p.currentQuestAnswerType == "COMMENT"%}
+            <input type="input" class="input-sm form-control" name="answerCont" id="answerCont"  value=""  />
+
+            {% elif p.currentQuestAnswerType == "FILES"%}
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" name="answerCont" id="answerCont" >
+              <label class="custom-file-label" for="answerCont">Choose file</label>
+            </div>
+
+            {% elif p.currentQuestAnswerType == "PHOTOS"%}
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" name="answerCont" id="answerCont"  >
+              <label class="custom-file-label" for="answerCont">Choose file</label>
+            </div>
+
+            {% elif p.currentQuestAnswerType == "DATETIME"%}
+            <p>
+              <label for="time"></label>
+              <input type="date" name="answerCont" id="answerCont" >
+              <input type="time" name="answerCont_exp" id="answerCont_exp" >
+            </p>
+            {% elif p.currentQuestAnswerType == "DATE"%}
+            <input type="date" name="answerCont" id="answerCont" >
+
+            {% elif p.currentQuestAnswerType == "MULTI-CHOICES"%}
+            <div class="form-group">
+              <label for="answerCont">{{p.T['l_multipleSelect']}}</label>
+              <select multiple class="form-control"name="answerCont" id="answerCont" >
+                    {%for k in p.option%}
+                      <option value="{{k}}"> {{p.option[k]}} </option>
+                    {%endfor%}
+              </select>
+            </div>
+
+
+
+            {% elif p.currentQuestAnswerType == "TABLE"%}
+            
+            <h5> NOT ALLOWED YET </h5>
+
+
+            {%endif%}
+
+          </p>
+
+
+
+
+        </div>
+      </div>
+
+
+
+
+
+
+      <ul class="  text-right" style="max-width: 100%; margin: 25px;">
+
+        <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+        <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+        <input type="hidden" id="OBJID" name="OBJID" value="{{ ''}}" />
+        <input type="hidden" id="NextId" name="NextId" value="{{   p.conf['nxtPage'][1]  }}" />
+        <button type="submit" class="btn alert-info">{{ p.T[ p.conf['nxtPage'][2] ] }}</button>
+
+      </ul>
+
+    </form>
+    <ul class="list-group list-group-flush">
+      {% include './templates/return.htm' %}
+    </ul>
+  </div>
+
+
+
+
+
+
+</div>
+{% include './templates/footer.htm' %}

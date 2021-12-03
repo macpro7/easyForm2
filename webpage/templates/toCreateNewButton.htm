@@ -1,0 +1,13 @@
+
+
+{%if p.conf.get('newPage')!=None%}
+<div>
+    <br />
+    <form id="form_A57750224b841" name="form_A57750224b841" action="/{{p.conf.get('newPage')[0]}}" method="POST">
+      <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+      <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+      <input type="hidden" id="NextId" name="NextId" value="{{p.conf.get('newPage')[1]}}" />
+      <button type="submit" class="btn alert-warning" style="width: 100px;">{{ p.T[p.conf.get('newPage')[2]] }}</button>
+    </form>
+</div>
+{%endif%}

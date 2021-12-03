@@ -1,0 +1,117 @@
+{% include './templates/header.htm' %}
+
+
+<div id="container" style="min-width: 98%; margin: 10px 10px">
+  <!-- { % include './templates/toCreateNewButton.htm' % } -->
+  <br />
+  {%if p.msg!="" %}
+  <div class="alert alert-warning" role="alert">
+    {{p.T[p.msg]}}
+  </div>
+  {%endif%}
+
+  <div class="card " style="width: 100%;">
+    <h5 class="card-header alert-secondary ">{{ p.T[  p.conf.get('title')  ]}}:</h5>
+    <div class="card-body">
+
+
+      {% for item in p.viewObj%}
+      
+
+      {% if  item.get("pageStyle")   == "HIDDEN"%}
+      <input type="hidden" class="input-sm form-control" name="{{ item.get('name') }}" id="{{ item.get('name') }}" placeholder="" value="{{item.get('value')}}" />
+
+      {% elif  item.get("pageStyle")   == "TEXT"%}
+      <div class="card border-dark lb-2" style="max-width: 100%; margin: 5px;">
+        <div class="card-header">{{  item.get('show') }} : </div>
+        <div class="card-body text-dark">
+          <h5 class="card-title">{{  item.get('value')  }}</h5>
+          <!-- <p class="card-text">{ {item[5]} }</p> -->
+
+        </div>
+      </div>
+
+      {% elif  item.get("pageStyle")   == "SSELECT"%}
+
+      <div class="card border-dark lb-2" style="max-width: 100%; margin: 5px;">
+        <div class="card-header">{{item.get('show')}} : </div>
+        <div class="card-body text-dark">
+          <!-- <h5 class="card-title">{ {item[5]} }</h5> -->
+          <p class="card-text">
+
+
+            <ul class="list-group">
+              
+
+              
+              {%for k in  item.get('sub')  %}
+            
+                {%if item.get('sub')[k] == item.get('value') %}
+                <li class="list-group-item list-group-item-primary">{{  item.get('sub')[k]  }}</li>
+                {%else%}
+                <li class="list-group-item">{{  item.get('sub')[k]  }}</li>
+                {%endif%}
+              
+              {%endfor%}
+
+            </ul>
+
+          </p>
+
+        </div>
+      </div>
+      
+      {% elif  item.get("pageStyle")   == "OPTIONS"%}
+
+      <div class="card border-dark lb-2" style="max-width: 100%; margin: 5px;">
+        <div class="card-header">{{item.get('show')}} : </div>
+        <div class="card-body text-dark">
+          <!-- <h5 class="card-title">{ {item[5]} }</h5> -->
+          <p class="card-text">
+
+
+            <ul class="list-group">
+              
+
+              
+              {%for k in item.get('sub') %}
+            
+                {%if k == item.get('value') %}
+                <li class="list-group-item list-group-item-primary">{{item.get('sub')[k]}}</li>
+                {%else%}
+                <li class="list-group-item">{{item.get('sub')[k]}} </li>
+                {%endif%}
+              
+              {%endfor%}
+
+            </ul>
+
+          </p>
+
+        </div>
+      </div>
+
+
+
+
+
+      {%endif%}
+
+
+      {%endfor%}
+
+
+
+    </div>
+    <ul class="list-group list-group-flush">
+      {% include './templates/return.htm' %}
+    </ul>
+  </div>
+
+
+
+
+
+
+</div>
+{% include './templates/footer.htm' %}

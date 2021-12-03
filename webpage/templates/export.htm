@@ -1,0 +1,8 @@
+<li class="list-group-item text-right">
+  <form id="form_1" style="min-width: 95%; margin: 10px 10px" action="/{{ p.conf['return'][0] }}" method="POST">
+    <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+    <input type="hidden" id="UID" name="UID" value="{{ p.userobj.uuid }}" />
+    <input type="hidden" id="NextId" name="NextId" value="{{p.conf['return'][1]}}" />
+    <button id="subbtn" name="subbtn" type="submit" class="btn alert-secondary">&nbsp;&nbsp;{{ p.T['b_export']  }}&nbsp;&nbsp;</button>
+  </form>
+</li>

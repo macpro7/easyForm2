@@ -1,0 +1,61 @@
+{% include './templates/header.htm' %}
+
+
+<div id="container" style="min-width: 98%; margin: 10px 10px">
+
+  <br />
+  {%if p.msg!="" %}
+  <div class="alert alert-warning" role="alert">
+    {{p.T[p.msg]}}
+  </div>
+  {%endif%}
+
+  <div class="card " style="width: 100%;">
+    <h5 class="card-header alert-secondary ">{{ p.T[p.conf["title"]] }}:</h5>
+    <div class="card-body">
+
+      <table class="table table-hover " style="width: 100%;">
+        <thead>
+          <tr>
+            {%for i in range(p.conf["colWidth"]|size) %}
+            <th scope="col" style="width:{{p.conf['colWidth'][i]}}%;">{{ p.T[ p.conf['coltitle'][i]   ] }} </th>
+            {%endfor%}
+          </tr>
+        </thead>
+        <tbody>
+          {%for oneline in p.objlist %}
+          <tr>
+            {%for Y in range (p.conf['colWidth']|size) %}
+            {%if Y < (oneline|size)-1 %} 
+            <td>{{oneline[Y]}}</td>
+            {%else%}
+              <td>
+                {% include './templates/QuestOp.htm' %}
+              </td>
+              {%endif%}
+              {%endfor%}
+          </tr>
+          {%endfor%}
+        </tbody>
+      </table>
+
+    </div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        <form id="form_1" style="min-width: 95%; margin: 10px 10px" action="/{{p.conf['return'][0]}}" method="POST">
+          <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+          <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+          <input type="hidden" id="NextId" name="NextId" value="{{ p.conf['return'][1] }}" />
+          <button id="subbtn" name="subbtn" type="submit" class="btn alert-secondary">&nbsp;&nbsp;{{p.T[ p.conf['return'][2]  ]}}&nbsp;&nbsp;</button>
+        </form>
+      </li>
+    </ul>
+  </div>
+
+
+
+
+
+
+</div>
+{% include './templates/footer.htm' %}

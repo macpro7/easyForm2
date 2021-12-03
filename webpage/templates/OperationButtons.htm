@@ -1,0 +1,12 @@
+{%for one in p.conf.get('operationPage')%}
+
+<form style="display: inline;" id="{{ p.conf.get('operationPage').get(one)[3] }}" name="{{ p.conf.get('operationPage').get(one)[3] }}"
+          action="/{{ p.conf.get('operationPage').get(one)[0] }}" method="POST">
+  <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+  <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+  <input type="hidden" id="OBJID" name="OBJID" value="{{oneline[Y]}}" />
+  <input type="hidden" id="NextId" name="NextId" value="{{ p.conf.get('operationPage').get(one)[1] }}" />
+  <button type="submit" class="btn alert-info" >{{ p.T[  p.conf.get('operationPage').get(one)[2]  ] }}</button>
+</form>
+{%endfor%}
+

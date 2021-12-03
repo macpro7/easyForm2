@@ -1,0 +1,63 @@
+{% include './templates/header.htm' %}
+
+<!--RVVIEW-->
+<div id="container" style="min-width: 98%; margin: 10px 10px">
+  <!-- { % include './templates/toCreateNewButton.htm' % } -->
+  <br />
+  {%if p.msg!="" %}
+  <div class="alert alert-warning" role="alert">
+    {{p.T[p.msg]}}
+  </div>
+  {%endif%}
+
+  <div class="card " style="width: 100%;">
+    <h5 class="card-header alert-secondary ">{{ p.T[ p.conf.get('title') ]}}:</h5>
+    <div class="card-body">
+
+
+      {% for item in p.objlist%}
+
+                  <div class="card" style="width: 98% ;  margin: 10px;">
+                    <div class="card-body">
+                      {%for line in p.objlist[item]%}
+
+                          {{line["pageCode"]| safe}}
+                        
+                        
+                        <!-- <a href="#" class="card-link">Another link</a> -->
+                      {%endfor%}
+                      <a href='#' class='card-link'  data-toggle="modal" data-target="#addComment" 
+                      data-whatever="{{p.objlist[item] | getROLEKEY }}"
+                      > {{p.T['l_comment']}} </a>
+                      <!-- <button type="button" class="btn btn-primary" data-toggle="modal"
+                       data-target="#addComment" data-whatever="{ {p.objlist[item] | getROLEKEY }}">{{p.T['l_comment']}}</button>
+                       -->
+                    </div>
+                  </div>
+
+      {%endfor%}
+
+
+
+    </div>
+    
+    <ul class="list-group list-group-flush">
+      {% include './templates/export.htm' %}
+    </ul>
+
+    <ul class="list-group list-group-flush">
+      {% include './templates/return.htm' %}
+    </ul>
+  </div>
+
+
+
+
+
+
+</div>
+
+
+{% include './templates/modal-dialog.htm' %}
+
+{% include './templates/footer.htm' %}

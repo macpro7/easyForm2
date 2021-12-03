@@ -1,0 +1,18 @@
+
+  <form style="display: inline;" id="form_A57CDED12" name="form_A57CDED12" action="/{{  p.conf['chkPage'][0] }}" method="POST">
+    <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+    <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+    <input type="hidden" id="OBJID" name="OBJID" value="{{oneline[Y]}}" />
+    <input type="hidden" id="NextId" name="NextId" value="{{ p.conf['chkPage'][1]  }}" />
+    <button type="submit" class="btn alert-info" >{{ p.T[  p.conf['chkPage'][2]  ] }}</button>
+  </form>
+ 
+  {% if p.userobj.usertype != 'TEMP '%}
+  <form style="display: inline;" id="form_A57estE" name="form_A57estE" action="/{{ p.conf['rvPage'][0] }}" method="POST">
+    <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+    <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+    <input type="hidden" id="OBJID" name="OBJID" value="{{oneline[Y]}}" />
+    <input type="hidden" id="NextId" name="NextId" value="{{p.conf['rvPage'][1]}}" />
+    <button type="submit" class="btn alert-info" >{{ p.T[ p.conf['rvPage'][2] ] }}</button>
+  </form>
+ {%endif%}

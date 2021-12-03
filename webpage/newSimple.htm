@@ -1,0 +1,184 @@
+{% include './templates/header.htm' %}
+
+<div id="container" style="min-width: 98%; margin: 10px 10px">
+
+
+  <div class="card ">
+    <h5 class="card-header alert-secondary ">{{p.T[  p.conf.get('title')  ]}} : </h5>
+
+    <form id="language_50466284603" name="language_50466284603" action="/{{p.conf.get('next')[0]}}" method="POST">
+      <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+      <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+      <input type="hidden" id="NextId" name="NextId" value="{{p.conf.get('next')[1]}}" />
+
+      <ul class="list-group list-group-flush">
+
+        {%for item in p.UI%}
+
+
+        {% if item.get("pageStyle") == "HIDDEN"%}
+
+        <input type="hidden" class="input-sm form-control" name="{{ item.get('name') }}" id="{{ item.get('name') }}" placeholder=""
+          value="{{ item.get('value')  }}" />
+
+
+
+
+
+        {% elif item.get("pageStyle") == "TEXT"%}
+
+        <li class="list-group-item">
+          <span class="input-group-addon">
+            {{ item.get("show")  }}
+            <input type="input" class="input-sm form-control" name="{{ item.get('name') }}" id="{{ item.get('name') }}"
+              placeholder="{{ item.get('show') }}" value="{{ item.get('value') }}"  {{ item.get("attr") |safe}} />
+          </span>
+        </li>
+
+
+
+
+        {% elif item.get("pageStyle") == "SSELECT"%}
+
+        <li class="list-group-item">
+          <span class="input-group-addon">
+
+
+            {{ item.get("show")  }}
+            <select class="custom-select mr-sm-2" name="{{ item.get('name') }}" id="{{ item.get('name') }}">
+              {%for k in item.get("sub") %}
+              <option value="{{k}}">{{   item.get("sub")[k]  }}</option>
+              {%endfor%}
+            </select>
+
+          </span>
+        </li>
+
+
+        {% elif item.get("pageStyle") == "OPTIONS"%}
+
+        <li class="list-group-item">
+          <span class="input-group-addon">
+
+
+            {{ item.get("show")  }}
+            <select class="custom-select mr-sm-2" name="{{ item.get('name') }}" id="{{ item.get('name') }}">
+              {%for k in  item.get("sub") %}
+              <option value="{{k}}">{{    item.get("sub")[k]}}</option>
+              {%endfor%}
+            </select>
+
+          </span>
+        </li>
+
+
+
+
+
+        {% elif item.get("pageStyle") == "DATE"%}
+        <li class="list-group-item">
+          <span class="input-group-addon">
+            {{ item.get("show")  }}
+            <input class="input-sm form-control" type="date" name="{{ item.get('name') }}" id="{{ item.get('name') }}">
+          </span>
+        </li>
+
+        {% endif %}
+
+
+        {%endfor%}
+
+        <li>
+          <div class="card-body text-right">
+            <button type="submit" onclick=" return check();"
+              class="btn alert-info btn-lg btn-block input-sm form-control "> {{p.T['b_submit']}}
+            </button>
+          </div>
+        </li>
+      </ul>
+    </form>
+    <ul class="list-group list-group-flush">
+
+      {% include './templates/return.htm' %}
+
+    </ul>
+  </div>
+</div>
+
+
+<script>
+  var globalIndex = 1;
+  var all = "";
+  SPLIT = "-.-"
+  //<button id="subbtn" name="subbtn"  class="btn btn-primary">&nbsp;&nbsp;{ {  "6"}}&nbsp;&nbsp;</button>
+  function g(obj) {
+    return document.getElementById(obj);
+  }
+  function clearField() {
+    all = "";
+    g('userName').value = "";
+    g('lginame').value = "";
+    g('loginPs').value = "";
+    g('userMobile').value = "";
+    g('userMail').value = "";
+  }
+
+  function addthis() {
+    if ((g('userName').value == "")) {
+      alert(' {{  "38  "}}');
+      return false;
+    }
+    if ((g('lginame').value == "")) {
+      alert(' {{  "58  "}}');
+      return false;
+    }
+
+    if ((g('loginPs').value == "")) {
+      alert(' {{  "39  "}}');
+      return false;
+    }
+    if ((g('userMobile').value == "")) {
+      alert(' {{  "40  "}}');
+      return false;
+    }
+    if ((g('userMail').value == "")) {
+      alert(' {{  "41  "}}');
+      return false;
+    }
+
+
+    all = all + SPLIT + g('userName').value;
+    all = all + SPLIT + g('lginame').value;
+    all = all + SPLIT + g('loginPs').value;
+    all = all + SPLIT + g('userMobile').value;
+    all = all + SPLIT + g('userMail').value;
+    all = all + SPLIT + g('belongto').value;
+
+    makeList();
+    clearField();
+  }
+
+  function makeList() {
+    all = "BEGIN:>=" + g("la").value + SPLIT + g("UUID").value + all;
+    sendit(all);
+    //alert(all);
+  }
+
+  function sendit(para) {
+    $.ajax({
+      type: 'POST',
+      url: "/addNewAccount/",
+      data: para,
+      success: afterSuccess()
+    });
+  }
+
+
+  function afterSuccess() {
+    alert("OK")
+  }
+
+</script>
+
+
+{% include './templates/footer.htm' %}

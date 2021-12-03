@@ -1,0 +1,32 @@
+{% include './templates/header.htm' %}
+<div class="container" style="text-align: center;">
+  <br />
+  <img src="/img/logo.png"/>
+  <br />
+  <div>{{p.ver}}</div>
+  <div>{{p.msg}}</div>
+  <br />
+  <form id="language_form" name="language_form" action="/Tologin/" method="POST">
+      <span>
+          <span class="text">
+              <button type="submit" class="btn btn-default  alert-secondary btn-lg "
+                  onclick="sw('EN')">{{'English'}}</button>
+          </span>
+          <span class="text">
+              <button type="submit" class="btn btn-default  alert-secondary btn-lg "
+                  onclick="sw('JP')">{{'日本語'}}</button>
+          </span>
+          <span class="text">
+              <button type="submit" class="btn btn-default  alert-secondary btn-lg  "
+                  onclick="sw('CH')">{{'中文'}}</button>
+          </span>
+          <input type="hidden" id="la" name="la" value="EN" />
+      </span>
+  </form>
+</div>
+<script>
+  function sw(lan) {
+      document.getElementById("la").value = lan;
+  }
+</script>
+{% include './templates/footer.htm' %}

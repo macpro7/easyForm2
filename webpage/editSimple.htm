@@ -1,0 +1,255 @@
+{% include './templates/header.htm' %}
+
+<div id="container" style="min-width: 98%;  margin: 10px 10px">
+
+
+  <div class="card ">
+    <h5 class="card-header alert-secondary ">{{p.T[ p.conf.get('title') ]}} : </h5>
+
+    <form id="form_c9e05aa4b8e2722047675fdab6e158" name="form_c9e05aa4b8e2722047675fdab6e158"
+      action="/{{p.conf.get('next')[0]}}" method="POST">
+      <input type="hidden" id="la" name="la" value="{{p.T['LAN']}}" />
+      <input type="hidden" id="UID" name="UID" value="{{p.userobj.uuid}}" />
+      <input type="hidden" id="NextId" name="NextId" value="{{p.conf.get('next')[1]}}" />
+
+      <ul class="list-group list-group-flush">
+
+
+
+
+        {% for item in p.viewObj%}
+
+
+        {% if item.get("pageStyle") == "HIDDEN"%}
+        <input type="hidden" class="input-sm form-control" name="{{  item.get('name')  }}" id="{{  item.get('name')  }}"
+          placeholder="" value="{{  item.get('value')  }}" {{ item.get("attr") |safe}} />
+
+        {% elif item.get("pageStyle") == "TEXT"%}
+
+
+        <div class="card border-dark lb-2" style="max-width: 100%; margin: 5px;">
+          <div class="card-header">{{ item.get("show") }} : </div>
+          <div class="card-body text-dark">
+
+            <p class="card-text">
+              <input type="input" class="input-sm form-control" name="{{  item.get('name')  }}"
+                id="{{  item.get('name')  }}" value="{{item.get('value')}}" {{ item.get("attr") |safe}} />
+
+            </p>
+
+          </div>
+        </div>
+
+
+
+
+
+        {% elif item.get("pageStyle") == "SSELECT"%}
+
+        <div class="card border-dark lb-2" style="max-width: 100%; margin: 5px;">
+          <div class="card-header">{{ item.get("show") }} : </div>
+          <div class="card-body text-dark">
+            <!-- <h5 class="card-title"> </h5> -->
+            <p class="card-text">
+
+
+            <div class="card" style="width: 100% ">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+
+                  {{p.T['l_forNow']}} :
+
+                </li>
+                <li class="list-group-item">
+                  <select class="custom-select mr-sm-2" name="{{  item.get('name')  }}" id="{{  item.get('name')  }}">
+                    {%for k in item.get("sub") %}
+                   
+                    {%if item.get("sub")[k] == item.get('value') or k == item.get('value') %}
+                    <option value="{{k}}" selected>{{item.get("sub")[k]}}</option>
+                    {%else%}
+                    <option value="{{k}}">{{item.get("sub")[k]}}</option>
+                    {%endif%}
+                    {%endfor%}
+                  </select>
+
+                </li>
+                <li class="list-group-item">
+                  {{p.T['l_before']}} :
+
+                </li>
+                <li class="list-group-item">
+                  <ul class="list-group">
+
+                    {%for k in item.get("sub")%}
+                    {%if item.get("sub")[k] == item.get('value') or k == item.get('value') %}
+                    <li class="list-group-item list-group-item-secondary">{{item.get("sub")[k]}}</li>
+                    {%else%}
+                    <li class="list-group-item">{{item.get("sub")[k]}} </li>
+                    {%endif%}
+
+                    {%endfor%}
+
+                  </ul>
+
+                </li>
+              </ul>
+            </div>
+            </p>
+
+          </div>
+        </div>
+
+
+        {% elif item.get("pageStyle") == "OPTIONS"%}
+
+        <div class="card border-dark lb-2" style="max-width: 100%; margin: 5px;">
+          <div class="card-header">{{ item.get("show") }} : </div>
+          <div class="card-body text-dark">
+            <!-- <h5 class="card-title"> </h5> -->
+            <p class="card-text">
+
+
+            <div class="card" style="width: 100% ">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+
+                  {{p.T['l_forNow']}} :
+
+                </li>
+                <li class="list-group-item">
+                  <select class="custom-select mr-sm-2" name="{{  item.get('name')  }}" id="{{  item.get('name')  }}">
+                    {%for k in item.get("sub") %}
+
+                    {%if k == item.get('value') %}
+                    <option value="{{k}}" selected>{{item.get("sub")[k]}}</option>
+                    {%else%}
+                    <option value="{{k}}">{{item.get("sub")[k]}}</option>
+                    {%endif%}
+                    {%endfor%}
+                  </select>
+
+                </li>
+                <li class="list-group-item">
+                  {{p.T['l_before']}} :
+
+                </li>
+                <li class="list-group-item">
+                  <ul class="list-group">
+
+                    {%for k in item.get("sub")%}
+                    {%if k == item.get('value') %}
+                    <li class="list-group-item list-group-item-secondary">{{item.get("sub")[k]}}</li>
+                    {%else%}
+                    <li class="list-group-item">{{item.get("sub")[k]}} </li>
+                    {%endif%}
+
+                    {%endfor%}
+
+                  </ul>
+
+                </li>
+              </ul>
+            </div>
+            </p>
+
+          </div>
+        </div>
+
+
+
+
+
+
+        {% elif item.get("pageStyle") == "DATE"%}
+        <div class="card border-dark lb-2" style="max-width: 100%; margin: 5px;">
+          <div class="card-header">{{ item.get("show") }} : </div>
+          <div class="card-body text-dark">
+            <p class="card-text">
+
+            <div class="card" style="width: 100% ">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+
+                  {{p.T['l_forNow']}} :
+
+                </li>
+                <li class="list-group-item">
+                  <input class="input-sm form-control" type="date" name="{{  item.get('name')  }}"
+                    id="{{  item.get('name')  }}" value="{{  item.get('value')  }}">
+                </li>
+                <li class="list-group-item">
+                  {{p.T['l_before']}} :
+
+                </li>
+                <li class="list-group-item">
+                  <ul class="list-group">
+
+                    {{ item.get('value') }}
+
+                  </ul>
+
+                </li>
+              </ul>
+            </div>
+
+
+
+
+
+
+
+
+
+
+            </p>
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+        {%endif%}
+        {%endfor%}
+
+
+
+
+
+
+
+
+        <li>
+          <div class="card-body text-right">
+            <button type="submit" onclick=" return check();"
+              class="btn alert-info btn-lg btn-block input-sm form-control "> {{p.T['b_submit']}}
+            </button>
+          </div>
+        </li>
+
+
+      </ul>
+    </form>
+
+
+
+    <ul class="list-group list-group-flush">
+
+      {% include './templates/return.htm' %}
+
+    </ul>
+  </div>
+</div>
+
+
+<script>
+ 
+</script>
+
+
+{% include './templates/footer.htm' %}
