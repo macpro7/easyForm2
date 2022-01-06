@@ -1,16 +1,17 @@
-import sys 
+import sys ,os
 sys.path.append("..") 
 ###################
-from flask import request
+from flask import request,send_from_directory,make_response
 ###################
 from db.sysDAO import getAll_CaseObj,query_misc_Dict,getTextbyLang,addObjectSimple,getAll_User                    # Methods
 from db.sysDAO import query_Owners_Dict,UpdateObjectSimple,query_case_Dict,getObjByUUID,getAll_Question_Valid     # Methods
 from db.sysDAO import getAll_Paper_Valid,UpdateLangTextObj,getCaseObj_UUID,getPaper_UUID ,getUserByUUID         # Methods
 from db.sysDAO import query_paper_Dict,query_optionsCandidate_Dict,getQuestByUUID,deepClone,getRF_byAttr          # Methods
-from db.sysDAO import getPaperName_UUID,getUser_UUID,getUserNamebyUUID,getRF_byFID,getFinishedUser    # Methods
-#from db.sysDAO import                                   
+from db.sysDAO import getPaperName_UUID,getUser_UUID,getUserNamebyUUID,getRF_byFID,getFinishedUser ,getAvailableUser   # Methods
+from db.sysDAO import getUserListbyRF_fid ,getCaseIdbyQuestId
+#from db.sysDAO import                             
 from db.dbObjects import LangText,QustObj,User,RFObj,PaperObj,CaseObj,AnswerSheetObj # Objects
-
+from util.XLSX import CreateNewFilebyOpertions
 
 from db.cascadeQuery import getQuest_UUID_LANG_RF_ALL,getQuest_UUID_LANG_RF_TODO,get_QA_by_Paper_User
 import system.conf as s # --OR-- from system import conf
@@ -211,8 +212,6 @@ def QueryValue_colCont(stringCode,ObjInstance,LANG):
     
     if instance_ != None and instance_!="":
         name,stringCode= ProcessFieldWithStar(wantColumn, instance_, LANG)
- 
-        
 
     return name
 ########-----------------------------------------------###############
@@ -233,10 +232,13 @@ def BuildListPage(config,p):
         displayObjlist=[]
         for line in objlist_original:
             xline=[]
+            #ii=0
             for one in config["colCont"]:
                 # originId,cmd,disName=one.split(".")
                 name_=QueryValue_colCont(one,line,p.T["LAN"])
                 xline.append(name_)
+                #xline.append([name_ , config["colType"][ii]])
+                #ii=ii+1
             displayObjlist.append(xline)
         return displayObjlist
     
@@ -245,16 +247,48 @@ def BuildListPage(config,p):
         for line in objlist_original:
             key=""
             oneRecord=[]
+            FILE_TYPE=""
+            CaseId=""
+
+            
             for one in config["data"]:
                 one_field_item = FillDict(one)
+
+                if one_field_item["cont"].find("questId")>-1:
+                    a_=  QueryValue_from_cascadeQuery(one_field_item["cont"],line) 
+                    CaseId = getCaseIdbyQuestId(a_)
+                    
+                
+                if one_field_item["cont"].find("ans_type")>-1:
+                    FILE_TYPE = QueryValue_from_cascadeQuery(one_field_item["cont"],line)
+                    
+                
+                
+                
+                if FILE_TYPE == "PHOTOS" and one_field_item['cont'].find("answerCont")>-1 :
+                    one_field_item["pageCode"] = config["PHOTOS"]
+                    
+                    
+                if FILE_TYPE == "FILES" and one_field_item['cont'].find("answerCont")>-1:
+                    one_field_item["pageCode"] = config["FILES"]
+                    
+               
                 one_field_item["cont"]=QueryValue_from_cascadeQuery(one_field_item["cont"],line)
+                
+                
+                #print(CaseId)
+                
+                one_field_item["pageCode"] = one_field_item["pageCode"].replace(
+                    s.LOCATION, s.DOWNPATH+CaseId+s.FILE_SEP+FILE_TYPE+s.FILE_SEP+one_field_item["cont"])   
+                
+                    
                 one_field_item["pageCode"] = one_field_item["pageCode"].replace(
                     s.ANCHOR, one_field_item["cont"])
                 
                 one_field_item["pageCode"] = one_field_item["pageCode"].replace(
                     s.PREFIX, p.T[one_field_item["show"]]+" : ")
                 
-                
+                #print( one_field_item["pageCode"]) 
                 if one_field_item.get("ROLE") == "KEY":
                     key= one_field_item["cont"]
                 
@@ -297,9 +331,87 @@ def SaveComment( UUID,textComment,questId):
     obj.ans_type = "TEXT"
     obj.status =  "OK"
     addObjectSimple(obj)
+########-----------------------------------------------###############
+def AssignPU( FID,CID):
+    obj = RFObj()
+    obj.uuid = g(32)
+    obj.fid = FID
+    obj.cid = CID
+    obj.attribute = "PAPER_USER"
+    obj.label = "YES"
+    obj.status = "OPEN"
+    addObjectSimple(obj)
+########-----------------------------------------------###############
+def exportXlsxFile(paperId,userId , LANG, export_id ):
+    print("exportXlsxFile" , paperId,userId , LANG, export_id)
+    params = [paperId,userId,LANG]  
+    conf= s.EXPORT_CONF[export_id]
+    objs = FUNC_INVOKE[conf["getObjList"]](params)
+
+    sheetTitle=export_id
+
+    currentRow=0
+    xfmt =  conf["xlsFormat"]
+    acc={}
+    for x in xfmt:
+        
+        if x.find("*")<0 and x.find("$")<0:
+            acc[x] = xfmt[x]
+        if x.find("$beginRow")>-1:
+            currentRow =  xfmt[x]
+        if x.find("*")>-1:
+            y=x.replace("*",str(currentRow))
+            acc[y]= xfmt[x] 
     
-    
-    
+    obfmt = conf["objsItem"]
+    number=0
+    for oneline in objs:
+        currentRow=currentRow+1
+        number=number+1
+        
+        for x in obfmt:
+            
+            if x.find("*")>-1:
+                y=x.replace("*", str(currentRow))
+                
+                if obfmt[x]==[]:
+                    acc[y]= str(number)
+                else:
+                    for oneItem in obfmt[x]:
+                        order,field,condition =oneItem
+                        
+                        value = returnMemberOfClass(oneline[order],field)
+                        if value=="":
+                            value = field
+                        
+                        if condition.find("=")>-1:
+                            attr,attValue = condition.split("=")
+                            realAttValue = returnMemberOfClass(oneline[order],attr)
+                            if attValue == realAttValue:
+                                
+                                if acc.get(y)!=None:
+                                    acc[y] =acc[y] +" "+ value
+                                else:
+                                    acc[y] =  value
+                            else:
+                                acc[y] = ""
+                        
+                    ###
+                        else:
+                            
+                            if acc.get(y)!=None:
+                                acc[y] =acc[y] +" "+ value
+                            else:
+                                acc[y] =  value
+                    ###
+                
+                    #acc[y] = value + "###"+ condition
+                
+            
+    # QueryValue_from_cascadeQuery( stringCode , cascadeObjects)
+    print(acc)
+    return CreateNewFilebyOpertions(acc,sheetTitle)
+    #return CreateNewFile
 ########-----------------------------------------------###############
 def select_param(ori_param , param_wanted):
     [page,NextId,OBJID,LANG] = ori_param
@@ -398,6 +510,57 @@ def getRequests2Class (NextId):
     classObj = SealRequestToClass(NextId , reqList)
     return classObj
 ########-----------------------------------------------###############
+def saveUploadFile(paper_id,TYP):
+    
+    root=s.UPPATH
+    caseId = getPaper_UUID(paper_id).caseId
+    file_dir = root+caseId+"/"+TYP+"/"
+    if not os.path.exists(file_dir):
+        os.makedirs(file_dir)
+    f = request.files['answerCont']
+    if f and allowed_file(f.filename):
+        if os.path.exists(file_dir+ f.filename):
+            filename_,post_fix = f.filename.split(".")
+            
+            fnew=filename_ + g(4) +"."+post_fix
+        f.save(file_dir+ fnew)
+        print("saveUploadFile" , file_dir+ fnew," Saved")
+    
+    return fnew
+########-----------------------------------------------###############
+def downFile(filename):
+    print(filename)
+    ss=filename.split(s.FILE_SEP)
+    folder =""
+    for i in range (len(ss)-1):
+        folder=folder+"/"+ss[i]
+    print(folder)
+    folder = "../"+ s.UPPATH+ folder[1:] +"/"
+        
+    # [LANG,UID,NextId,OBJID,FOBJID,COBJID,questId ]= asst.BatchGetRequest(
+    #     "la" , "UID" , "NextId" ,"OBJID","FOBJID","COBJID" ,"questId"
+    # )
+    print(os.path.dirname(__file__))
+    print(folder,"--",ss[-1] )
+    #return send_from_directory(
+    #     "/home/u/Desktop/dev/ICT/apps/hdd/547e85a72f54eb4b63530dffd93c217f/FILES",
+    #     "fuji.pptx"
+    # )
+    # response=make_response(send_from_directory(folder, ss[-1], as_attachment=True))
+    # response.headers["Content-Disposition"] = "attachment; filename={}".format(ss[-1].encode().decode('UTF-8'))
+    # return response
+    return send_from_directory(folder , ss[-1], as_attachment=True)
+########-----------------------------------------------###############
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = set(['doc','docx', 'png', 'jpg', 'jpeg','xls', 'xlsx', 'gif','ppt','pptx','pdf'])
+    if '.' in filename:
+        postfix = filename.rsplit('.', 1)[1] 
+        postfix = postfix.lower()
+        print(postfix)
+        if postfix in ALLOWED_EXTENSIONS:
+            return True
+    return  False  
+########-----------------------------------------------###############
 def WriteObj(obj):
     addObjectSimple(obj)
 ########-----------------------------------------------###############
@@ -472,6 +635,20 @@ def returnMemberOfClass(classInstance,memberName):
     if memberName == "OBJ":
         #print(classInstance)
         return classInstance
+    if memberName.find("LIST__")>-1:
+        result=""
+        
+        *_,fun,query_field,field = memberName.split("__")
+        for one in classInstance:
+            f,pc = FUNC_INVOKE[fun]
+            if pc==1:
+                pc= returnMemberOfClass(one, query_field)
+                # returnMemberOfClass(one.uuid, field) 
+                instance_ = f(  pc  )
+                #print( "returnMemberOfClass , ", instance_)
+            result = result + returnMemberOfClass(instance_, field) + " , "
+            #print(classInstance)
+        return result
     #print( "returnMemberOfClass ",  memberName  )
     if memberName.find(".")>-1:
         memberName=memberName[:memberName.find(".")]
@@ -660,6 +837,9 @@ FUNC_INVOKE = {
     #"getPaperByUUID": getPaper_UUID,
     ############
     ############
+    "get_QA_by_Paper_User":[get_QA_by_Paper_User,3],
+    "getUserListbyRF_fid" : [getUserListbyRF_fid,1],
+    "getAvailableUser" : [getAvailableUser,2],
     "getFinishedUser" : [getFinishedUser,2],
     "getAssigned_FID" : [getRF_byFID,2],
     "getCasebyUUID" : [getCaseObj_UUID,1],

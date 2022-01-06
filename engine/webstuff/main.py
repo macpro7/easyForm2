@@ -1,8 +1,8 @@
-import sys 
+import sys ,os
 sys.path.append("..") 
 ###################
 #import requests
-from flask import Flask,render_template,request,redirect,url_for
+from flask import Flask,render_template,request,redirect,url_for,make_response
 
 ###################
 import system.conf as s # --OR-- from system import conf
@@ -70,6 +70,42 @@ def AddComment():
     
 
     return  ToRVVPage(page)
+#######------------------------------------------------------------###########
+@app.route('/export/', methods = ['POST'])
+def exportXls():
+    [LANG,UID,NextId,OBJID,FOBJID,COBJID,questId ]= asst.BatchGetRequest(
+        "la" , "UID" , "NextId" ,"OBJID","FOBJID","COBJID" ,"questId")
+
+    print(LANG,UID,NextId,OBJID,FOBJID,COBJID,OBJID)
+    a= asst.exportXlsxFile( FOBJID,COBJID ,LANG,OBJID) # OBJID:export.style
+    
+    resp = make_response(a)
+    resp.headers["Content-Disposition"] = "attachment; filename=export.xlsx"
+    resp.headers["Content-Type"]="application/x-xlsx"
+    return resp
+    # page=asst.basePageInfo(LANG,UUID,NextId,OBJID,FOBJID,COBJID )
+    # return  ToRVVPage(page)
+@app.route('/getFile/<path:filename>', methods = ['POST','GET'])
+def getFile(filename):
+    return asst.downFile(filename)
+
+    # print(LANG,UID,NextId,OBJID,FOBJID,COBJID,OBJID)
+    # a= asst.exportXlsxFile( FOBJID,COBJID ,LANG,OBJID) # OBJID:export.style
+    
+    # resp = make_response(a)
+    # resp.headers["Content-Disposition"] = "attachment; filename=export.xlsx"
+    # resp.headers["Content-Type"]="application/x-xlsx"
+    # return resp
+#######------------------------------------------------------------###########
+@app.route('/ASPU/', methods = ['POST'])
+def AssignPaperUser():
+    [LANG,UID,NextId,OBJID,FOBJID,COBJID,questId ]= asst.BatchGetRequest(
+        "la" , "UID" , "NextId" ,"OBJID","FOBJID","COBJID" ,"questId")
+
+    print(LANG,UID,NextId,OBJID,FOBJID,COBJID,questId)
+    asst.AssignPU(  FOBJID,COBJID )
+    page=asst.basePageInfo(LANG,UID,NextId,OBJID,FOBJID,COBJID )
+    return  ToWorkPage(page,NextId,UID,LANG)
 #######------------------------------------------------------------###########
 @app.route('/work/', methods = ['GET','POST'])
 def workRoute():
@@ -139,7 +175,7 @@ def ToRVVPage(p):
 @app.route('/CKQUEST/', methods = ['GET','POST'])
 def CKQUEST():
     [LANG,UUID,NextId,OBJID ]= asst.BatchGetRequest( "la" , "UID" , "NextId" ,"OBJID" )
-    print(LANG,UUID,NextId,OBJID )
+    print(LANG,UUID,NextId,OBJID  )
     page=asst.basePageInfo(LANG,UUID,NextId,OBJID)
     
     classObj = asst.getRequests2Class(NextId)
@@ -147,7 +183,17 @@ def CKQUEST():
     if classObj.uuid == None or classObj.uuid == "" :
         pass
     else:
-        asst.WriteObj(classObj)
+        #print( classObj.ans_type, classObj.answerCont, type(classObj.answerCont) ,request.files['answerCont'].filename)
+        if classObj.ans_type =="FILES" and request.files['answerCont'].filename !="":
+            classObj.answerCont = asst.saveUploadFile(OBJID,"FILES")
+            asst.WriteObj(classObj)
+        elif classObj.ans_type =="PHOTOS" and request.files['answerCont'].filename !="":
+            classObj.answerCont = asst.saveUploadFile(OBJID,"PHOTOS")
+            asst.WriteObj(classObj)
+        elif  classObj.answerCont!="" :
+            asst.WriteObj(classObj)
+            
+        
         
     ##
     page=asst.BuildComplexView(page,NextId,OBJID,LANG)
