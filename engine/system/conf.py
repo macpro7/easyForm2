@@ -1,13 +1,17 @@
-VERSION = "Ver 0.0.3.3"
+VERSION = "Ver 0.0.4.0"
 SECRET_KEY = "EasyForm2"
 # DB="sqlite:///../../hdd/db.db" # for p3 sysDAO.py
 DB = "sqlite:///../hdd/db.db"  # for main.py
+UPPATH="../hdd/"
+DOWNPATH="/getFile/"
 MULTI_LAN_MARK = "Lan3"
 MULTI_LAN_SEP = "__"
 Request_MARK = ["."]
 TEMP_USER_TYPE = "TEMP"
 ANCHOR ="_ANCHOR_"
 PREFIX="_PREFIX_"
+LOCATION="_LOCATION_"
+FILE_SEP="0bd7b3f280856884562b52a419d36c9f"
 ########################################################################################
 FILE_PREFIX = "../hdd/conf/"
 FILE_MAPPING = {
@@ -21,7 +25,7 @@ URLMAPPING = {
     "caseTable": ["list.htm", "b_casemgr", "alert-success"],
     "paperTable": ["list.htm", "b_papermgr", "alert-success"],  # warning
     "questTable": ["list.htm", "b_qustmgr", "alert-success"],
-    "topicAssTable": ["list.htm", "b_questAssign", "alert-warning"],
+    "topicAssTable": ["RVLIST.htm", "b_questAssign", "alert-success"],
     "reviewTable": ["RVLIST.htm", "b_reviewQ", "alert-success"],
 }
 
@@ -289,15 +293,31 @@ RF_CONF = {
     "topicAssTable": {
         "return": ["work/", "mainpage", "b_back"],
         "operationPage": {           # OPERATION_PAGE
-            "Viewb":["CKOBJ/","ViewTopAssId","b_check","form_001"],
-            "Editb":["EDOBJ/","EditTopAssId","b_edit","form_002"],
-            "Cloneb":["CLOBJ/","CloneTopAssId","b_clone","form_003"],
+            "Viewb":["ASPU/","topicAssTable","l_user","form_001"],
+            # "Editb":["EDOBJ/","EditTopAssId","b_edit","form_002"],
+            # "Cloneb":["CLOBJ/","CloneTopAssId","b_clone","form_003"],
         },
+        "getList" : "getAll_Paper_Valid",
+        "params": ["$User_uuid"],
+        "title": "l_listPaper",
+        "colWidth": [15, 10, 35, 20, 20],
+        "coltitle": ["l_uppername", "l_no", "l_name", "l_UserAssigned" ,"l_UserAvailable"],
+        "colType": ["text", "text", "text", "text", "h5"],
+        "colCont": [
+            "caseId.getCasebyUUID.case_name",
+            "paperNo",
+            "*paperNameId",
+            # "uuid.getAssigned_FID.COUNT",
+            "uuid.getAssigned_FID.LIST__GET_USER__cid__displayname",
+            "uuid.getAvailableUser.OBJ",
+            "uuid",
+        ],
         
-        "newPage"   : [ "newSimple/", "newTopAssId" ,  "b_new" ], 
+
         
 
     },
+
     "reviewTable": {
         "return": ["work/", "mainpage", "b_back"],
         "operationPage": {           # OPERATION_PAGE
@@ -312,6 +332,7 @@ RF_CONF = {
         "title": "l_listPaper",
         "colWidth": [15, 10, 25, 15, 15, 20],
         "coltitle": ["l_uppername", "l_no", "l_name", "l_UserAssigned", "l_UserFinished", "b_check"],
+        "colType": ["text", "text", "text",  "text", "text", "h5" ,"h5" ],
         "colCont": [
             "caseId.getCasebyUUID.case_name",
             "paperNo",
@@ -326,6 +347,7 @@ RF_CONF = {
     },
     "ReviewPaperbyUser": {
         "return": ["work/", "reviewTable", "b_back"],
+        "export": ["export/","ReviewPaperbyUser","b_export","QAExport"],
         "operationPage": {           # OPERATION_PAGE
             "Viewb":["RVQ/","ReviewPaperUser","ViewUserId","form_001"],
             # "Editb":["EDOBJ/","EditPaperId","b_edit","form_002"],
@@ -337,6 +359,8 @@ RF_CONF = {
         "pageType": "GroupViewPage",
         "params": ["$FOBJID","$COBJID","$lang"],
         "title": "ViewPaperId",
+        "FILES": "<p class='card-text'><small class='text-muted'> _PREFIX_ <a href='_LOCATION_' > _ANCHOR_ </a></small></p><p>&nbsp;</p>",
+        "PHOTOS": "<p class='card-text'><img style='max-width: 80%' src='_LOCATION_' class='rounded' alt='...'></p> <p> _ANCHOR_</p>",
         "data": [ # BuildListPage # AnswerSheetObj,QustObj,LangText,User
             {
                 "name": "qu.number",
@@ -344,6 +368,26 @@ RF_CONF = {
                 "cont": "1.question_no",
                 "pageCode": "<h6 class='card-title'>_PREFIX__ANCHOR_</h6>",
                 "pageStyle": "TEXT",
+            },
+            {
+                "name": "qid_html",
+                "show" : "l_answer",
+                "cont": "0.questId",
+                "pageCode":"<input id='id' name='name'  type='hidden' vaule='_ANCHOR_' />",
+                "class": "card-text",
+                "pageStyle": "HIDDEN",
+                "ROLE" :"HTML",
+                
+            },
+            {
+                "name": "a.cont",
+                "show" : "l_no",
+                "cont": "0.ans_type",
+                "pageCode":"<!-- _ANCHOR_ -->",
+                #"pageCode":"<h6 class='card-subtitle mb-2 text-muted'>_PREFIX_  _ANCHOR_</h6>",
+                "class": "card-text",
+                "pageStyle": "HIDDEN",
+                "ROLE" :"LIST",
             },
             
             {
@@ -364,6 +408,7 @@ RF_CONF = {
                 "pageStyle": "TEXT",
                 "ROLE" :"LIST",
             },
+            
             {
                 "name": "a.cont",
                 "show" : "l_answer",
@@ -407,16 +452,7 @@ RF_CONF = {
             
             
         ],
-        # "colWidth": [15, 35, 20, 30],
-        # "coltitle": ["l_no", "l_name",  "l_UserFinished", "l_listUser"],
-        # "colCont": [
-        #     #"caseId.getCasebyUUID.case_name",
-        #     "paperNo",
-        #     "paperNameId",
-        #     "uuid.getFinishedUser.LEN",
-        #     "uuid.getFinishedUser.OBJ",
-        # ],
-        
+       
  
     },
     "ReviewPavvvvvvvvvperUser": {
@@ -1410,7 +1446,31 @@ RF_CONF = {
 
 
 # -------------------------------------------------------------------------------#
-
+EXPORT_CONF={
+    "QAExport":{
+        "getObjList":"get_QA_by_Paper_User", # AnswerSheetObj,QustObj,LangText,User
+        "params":"paperId,userId,LANG",
+        "xlsFormat":{
+            "$beginRow":3,
+            "A1":"QAExport",
+            "A*":"No.",
+            "B*":"Question",
+            "C*":"Answer",
+            "D*":"Comment",
+            "E*":"TYPE",
+            
+        },
+        "objsItem":{
+            "A*":[],
+            "B*":[[2,"text",""],],
+            "C*":[[0,"answerCont","attr=NORMAL"],],
+            "D*":[[3,"displayname",""],[0," : ",""],[0,"answerCont","attr=COMMENT"],],
+            "E*":[[0,"ans_type",""],],
+        }
+    },
+    
+    
+}
 
 # -------------------------------------------------------------------------------#
 
