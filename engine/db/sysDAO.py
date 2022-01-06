@@ -80,6 +80,19 @@ def getRF_byFID(params):
     #print (ones.count())
     return ones
 ##---------------------------------------------------##
+def getUserListbyRF_fid(params):
+    [fid,*_]=params
+    userlist=[]
+    rfobjs = getRF_byFID(params)
+    if rfobjs!=None and rfobjs.count() >0 :
+        for one in rfobjs:
+            u =  getUserByUUID(one.cid)
+            userlist.append(u)
+        return userlist
+    else:
+        return []
+    
+##---------------------------------------------------##
 def getCount_bySQL(sql):
     DBSession = sessionmaker(bind=engine)
     session=DBSession()
@@ -94,6 +107,14 @@ def getALL_bySQL(sql):
     session.close()
     return a
 ##---------------------------------------------------##
+def getCaseIdbyQuestId(qid):
+    sql="select caseId from qust_obj q, paper_obj p "
+    sql=sql+" where q.uuid =   '"+qid+"' "
+    sql=sql+" and q.paperId = p.uuid "
+    m = getALL_bySQL(sql)
+    # print(m[0][0])
+    return m[0][0]
+##---------------------------------------------------##
 def getFinishedUser( params ):
     [fid,*_]=params
     
@@ -103,6 +124,7 @@ def getFinishedUser( params ):
     
     sql = "select userId,count(1) as c from answersheet_obj a , qust_obj q "
     sql=sql + " where a.questId  = q.uuid and q.paperId = '"+fid +"'" 
+    sql=sql + " and  a.attr = 'NORMAL' "
     sql=sql + " group by userId "
     
     members = getALL_bySQL(sql)
@@ -121,7 +143,20 @@ def getFinishedUser( params ):
     return usr
     
 ##---------------------------------------------------##
-
+def getAvailableUser(params):
+    [fid,*_]=params
+    sql="select t.uuid, t.displayname,t.usertype from t_users t   where "
+    sql=sql+ " t.usertype  =  'TEMP' "
+    sql=sql+ " and t.uuid not in (   "
+    sql=sql+ " select cid from rf_obj where fid =       '"+ fid +"'  ) "
+    members = getALL_bySQL(sql)
+    usr=[]
+    for one in members:
+        a=getUserByUUID(one[0], ifValid=None)
+        usr.append(a)
+    #print("getAvailableUser ",type(usr))
+    return usr
+    
 ##---------------------------------------------------##
 def getTextbyLang(lanType, langcode=None):
     #print(  "getTextbyLang" ,  lanType, langcode)
@@ -347,15 +382,14 @@ def getAll_CaseObj(_owner):
     #     ones=(session.query(CaseObj).filter(   CaseObj.owner ==_owner  ))
     return ones
 ##---------------------------------------------------##
-def saveComment(UUID,text):
-    pass
-##---------------------------------------------------##
-def getAnswerbyUUID(UUID):
-    DBSession = sessionmaker(bind=engine)
-    session = DBSession()
-    ones = session.query(AnswerSheetObj)
 
-    return ones
+##---------------------------------------------------##
+# def getAnswerbyUUID(UUID):
+#     DBSession = sessionmaker(bind=engine)
+#     session = DBSession()
+#     ones = session.query(AnswerSheetObj).filter(   QustObj.ifvalid == "YES" )
+
+#     return ones
 ##---------------------------------------------------##
 def addObjectSimple(obj):
     try:
